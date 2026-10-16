@@ -4,6 +4,7 @@ import Footer from './componentes/Footer.jsx'
 import Inicio from './paginas/Inicio.jsx'
 import Login from './paginas/Login.jsx'
 import Registro from './paginas/Registro.jsx'
+import Contacto from './paginas/Contacto.jsx'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/contacto" element={<Contacto />} />
         </Routes>
       </div>
       <Footer />
