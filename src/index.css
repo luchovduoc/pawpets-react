@@ -1,0 +1,22 @@
+/* Estilos globales de PawPets React */
+
+:root {
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: #f4f4f4;
+  color: #234238;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.contenido-principal {
+  flex: 1;
+}
