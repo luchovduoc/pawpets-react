@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { buscarUsuarioPorEmail } from '../servicios/usuarios.js'
+import { iniciarSesion, destinoRol } from '../servicios/sesion.js'
 
 function Login() {
   const [formulario, setFormulario] = useState({
@@ -9,7 +11,8 @@ function Login() {
   }) // fin estado formulario
 
   const [errores, setErrores] = useState({}) // fin estado errores
-  const [mensaje, setMensaje] = useState('') // fin estado mensaje
+  const [error, setError] = useState('') // fin estado error general
+  const navigate = useNavigate() // fin navigate
 
   function cambiarCampo(evento) {
     const { name, value } = evento.target
@@ -19,6 +22,13 @@ function Login() {
     }))
   } // fin cambiarCampo
 
+  function validarCorreo(email) {
+    const dominios = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com', '@pawpets.cl']
+    const formato = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const dominio = dominios.some(d => email.endsWith(d))
+    return formato && dominio
+  } // fin validarCorreo
+
   function validar() {
     const nuevosErrores = {}
 
@@ -26,8 +36,8 @@ function Login() {
       nuevosErrores.rol = 'Seleccione un rol.'
     } // fin validacion rol
 
-    if (!formulario.email) {
-      nuevosErrores.email = 'El correo es obligatorio.'
+    if (!validarCorreo(formulario.email)) {
+      nuevosErrores.email = 'Ingrese un correo válido (@duoc.cl, @gmail.com).'
     } // fin validacion email
 
     if (formulario.password.length < 4 || formulario.password.length > 10) {
@@ -39,6 +49,7 @@ function Login() {
 
   function handleSubmit(evento) {
     evento.preventDefault()
+    setError('')
     const erroresEncontrados = validar()
 
     if (Object.keys(erroresEncontrados).length > 0) {
@@ -46,8 +57,25 @@ function Login() {
       return
     } // fin if errores
 
-    setErrores({})
-    setMensaje('Inicio de sesión exitoso.')
+    const usuario = buscarUsuarioPorEmail(formulario.email)
+
+    if (!usuario) {
+      setError('El correo no está registrado.')
+      return
+    } // fin if usuario no existe
+
+    if (usuario.password !== formulario.password) {
+      setError('La contraseña es incorrecta.')
+      return
+    } // fin if password incorrecta
+
+    if (usuario.rol !== formulario.rol) {
+      setError('El rol seleccionado no corresponde a este usuario.')
+      return
+    } // fin if rol incorrecto
+
+    iniciarSesion(usuario)
+    navigate(destinoRol(usuario.rol))
   } // fin handleSubmit
 
   return (
@@ -57,8 +85,8 @@ function Login() {
 
           <h1 className="mb-4">Ingresar a PawPets</h1>
 
-          {mensaje && (
-            <div className="alert alert-success">{mensaje}</div>
+          {error && (
+            <div className="alert alert-danger">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} noValidate>

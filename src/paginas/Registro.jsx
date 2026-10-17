@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { crearUsuario } from '../servicios/usuarios.js'
 
 const REGIONES = {
   'Metropolitana': ['Santiago', 'Puente Alto', 'Maipú', 'La Florida'],
@@ -89,12 +90,26 @@ function Registro() {
       return
     } // fin if errores
 
-    setErrores({})
-    setMensaje('¡Registro exitoso! Ya puedes iniciar sesión.')
-    setFormulario({
-      nombre: '', email: '', password: '',
-      confirmarPassword: '', rut: '', region: '', comuna: ''
-    })
+    try {
+      crearUsuario({
+        nombre: formulario.nombre,
+        email: formulario.email,
+        password: formulario.password,
+        rut: formulario.rut,
+        region: formulario.region,
+        comuna: formulario.comuna,
+        rol: 'cliente'
+      })
+      setErrores({})
+      setMensaje('¡Registro exitoso! Ya puedes iniciar sesión.')
+      setFormulario({
+        nombre: '', email: '', password: '',
+        confirmarPassword: '', rut: '', region: '', comuna: ''
+      })
+    } catch (err) {
+      setErrores({ email: err.message })
+    } // fin try catch
+
   } // fin handleSubmit
 
   return (
